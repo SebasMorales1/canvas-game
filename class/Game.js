@@ -5,33 +5,22 @@ class Hero {
     this.x = 5
     this.y = 5
     this.speed = 0.2
-    this.direction = 'right',
-    this.isMove = false
+    this.map = new Set()
   }
 
   draw() {
     document.body.addEventListener('keyup', (e) => {
-      //this.move(e.key)
-      this.isMove = false
-      console.log('dejo')
+      this.direction = null
+      this.map.delete(e.key)
     })
 
     document.body.addEventListener('keydown', (event) => {
-      this.move(event.key)
+      if (this.map.size < 3)
+        this.map.add(event.key)
     })
 
-    /* if (this.x >= 33 && this.isMove) this.direction = 'left'
-    if (this.x <= 0 && this.isMove) this.direction = 'right' */
+    this.move()
     
-    if (this.direction === 'right' && this.isMove)
-      this.x+=this.speed
-    if (this.direction === 'left' && this.isMove)
-      this.x-=this.speed
-    if (this.direction === 'up' && this.isMove)
-      this.y-=this.speed
-    if (this.direction === 'down' && this.isMove)
-      this.y+=this.speed
-
     this.ctx.fillStyle = this.color
     this.ctx.fillRect(this.x, this.y, 2, 2)
   }
@@ -43,22 +32,34 @@ class Hero {
     if (this.y < 0) this.y = 0
   }
 
-  move(key) {
-    if (key.toLowerCase() === 'd' || key === 'ArrowRight') {
-      this.direction = 'right'
-      this.isMove = true
-    }
-    if (key.toLowerCase() === 'a' || key === 'ArrowLeft') {
-      this.direction = 'left'
-      this.isMove = true
-    }
-    if (key.toLowerCase() === 'w' || key === 'ArrowUp') {
-      this.direction = 'up'
-      this.isMove = true
-    }
-    if (key.toLowerCase() === 's' || key === 'ArrowDown') {
-      this.direction = 'down'
-      this.isMove = true
+  normalize() {
+    return this.speed/2+this.speed*2.5/10
+  }
+
+  move() {
+    if (this.map.size) {
+      if (this.map.has('d')) {
+        if (this.map.has('w') || this.map.has('s')) {
+          this.x += this.normalize()
+          if (this.map.has('w')) this.y -= this.normalize()
+          else this.y += this.normalize()
+        }
+        else this.x += this.speed
+      }
+
+      if (this.map.has('a')) {
+        if (this.map.has('w') || this.map.has('s')) {
+          this.x -= this.normalize()
+          if (this.map.has('w')) this.y -= this.normalize()
+          else this.y += this.normalize()
+        }
+        else this.x -= this.speed
+      }
+
+      if (this.map.has('w') && this.map.size === 1)
+        this.y -= this.speed
+      if (this.map.has('s') && this.map.size === 1)
+        this.y += this.speed
     }
   }
 }
